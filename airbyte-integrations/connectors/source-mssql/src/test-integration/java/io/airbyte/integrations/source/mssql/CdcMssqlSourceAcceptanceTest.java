@@ -98,7 +98,9 @@ public class CdcMssqlSourceAcceptanceTest extends SourceAcceptanceTest {
 
   @Override
   protected void setupEnvironment(final TestDestinationEnv environment) {
-    testdb = MsSQLTestDatabase.in(BaseImage.MSSQL_2022, ContainerModifier.AGENT);
+    testdb = MsSQLTestDatabase.in(BaseImage.MSSQL_2022, ContainerModifier.AGENT)
+        .withWaitUntilAgentRunning()
+        .withCdc();
     final var enableCdcSqlFmt = """
                                 EXEC sys.sp_cdc_enable_table
                                 \t@source_schema = N'%s',
@@ -106,8 +108,6 @@ public class CdcMssqlSourceAcceptanceTest extends SourceAcceptanceTest {
                                 \t@role_name     = N'%s',
                                 \t@supports_net_changes = 0""";
     testdb
-        .withCdc()
-        .withWaitUntilAgentRunning()
         // create tables
         .with("CREATE TABLE %s.%s(id INTEGER PRIMARY KEY, name VARCHAR(200));", SCHEMA_NAME, STREAM_NAME)
         .with("CREATE TABLE %s.%s(id INTEGER PRIMARY KEY, name VARCHAR(200));", SCHEMA_NAME, STREAM_NAME2)
