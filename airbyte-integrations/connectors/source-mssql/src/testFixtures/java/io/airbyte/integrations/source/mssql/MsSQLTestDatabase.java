@@ -62,7 +62,11 @@ public class MsSQLTestDatabase extends TestDatabase<MSSQLServerContainer<?>, MsS
     return testdb
         .withConnectionProperty("encrypt", "false")
         .withConnectionProperty("databaseName", testdb.getDatabaseName())
-        .initialized();
+        .initialized()
+        .with("EXEC sys.sp_configure 'show advanced options', 1")
+        .with("RECONFIGURE")
+        .with("EXEC sys.sp_configure 'min server memory', 2048")
+        .with("RECONFIGURE");
   }
 
   public MsSQLTestDatabase(final MSSQLServerContainer<?> container) {
@@ -70,7 +74,11 @@ public class MsSQLTestDatabase extends TestDatabase<MSSQLServerContainer<?>, MsS
   }
 
   public MsSQLTestDatabase withCdc() {
-    return with("EXEC sys.sp_cdc_enable_db;");
+    return with("EXEC sys.sp_cdc_enable_db;")
+        .with("EXEC sys.sp_configure 'show advanced options', 1")
+        .with("RECONFIGURE")
+        .with("EXEC sys.sp_configure 'min server memory', 2048")
+        .with("RECONFIGURE");
   }
 
   public MsSQLTestDatabase withoutCdc() {
